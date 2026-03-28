@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-Pillow==10.0.1
+Pillow==12.1.1
 facenet-pytorch
 opencv-python
 python-multipart
