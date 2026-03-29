@@ -1,16 +1,13 @@
 FROM python:3.10-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies (for Pillow etc.)
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libjpeg-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (better caching)
 COPY requirements.txt .
 
 # Install Python dependencies
