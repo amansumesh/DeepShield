@@ -17,7 +17,8 @@ groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 device = torch.device("cpu") 
 
-model = load_model("models/best_model.pth", device)
+model_path = os.path.join(os.path.dirname(__file__), "best_model.pth")
+model = load_model(model_path, device)
 mtcnn = MTCNN(keep_all=False, device=device)
 
 class_names = ["FAKE", "REAL"]
