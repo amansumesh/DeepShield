@@ -66,8 +66,17 @@ def get_image_description(image: Image.Image, prediction: str, confidence: float
         print(f"--- Groq API Error: {str(e)} ---")
         return "Visual context unavailable."
 
-def predict_image(image: Image.Image):
-    image_rgb = image.convert("RGB")
+def predict_image(image):
+
+    if isinstance(image, bytes):
+        image = Image.open(io.BytesIO(image))
+
+    if not isinstance(image, Image.Image):
+        image = Image.fromarray(image)
+
+    image_rgb = image.convert("RGB").copy()
+
+    # print("Image type:", type(image_rgb))
     width, height = image_rgb.size
     total_area = width * height
 
@@ -118,7 +127,11 @@ def predict_image(image: Image.Image):
         
         print(f"--- Prediction: {class_names[predicted.item()]} | Output logits: {outputs[0].tolist()} ---")
 
-    description = get_image_description(image_rgb, class_names[predicted.item()], round(float(confidence.item()) * 100, 2))
+    description = get_image_description(
+        image_rgb,
+        class_names[predicted.item()],
+        round(float(confidence.item()) * 100, 2)
+    )
     
     return {
         "prediction": class_names[predicted.item()],
@@ -126,5 +139,4 @@ def predict_image(image: Image.Image):
         "face_crop_url": face_crop_url,
         "description": description
     }
-
 
