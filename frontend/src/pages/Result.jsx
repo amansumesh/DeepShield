@@ -89,6 +89,22 @@ const Result = ({ result, onReset, previewUrl }) => {
                                 </div>
                             )}
 
+                            {result.shap_url && (
+                                <div className="mt-8 pt-6 border-t border-white/5 animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700">
+                                    <h3 className="text-white/40 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">Model Interpretability (SHAP)</h3>
+                                    <div className="relative group/shap">
+                                         <img 
+                                            src={result.shap_url} 
+                                            alt="SHAP Explanation" 
+                                            className="w-full h-auto rounded-xl border border-white/10 bg-black/20 shadow-inner group-hover/shap:border-blue-500/30 transition-colors"
+                                        />
+                                        <div className="mt-2 text-[10px] text-zinc-500 italic leading-snug">
+                                            Feature attribution heatmap. Highlights area of interest used by the AI to make this decision.
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
 

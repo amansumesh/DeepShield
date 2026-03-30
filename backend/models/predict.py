@@ -10,6 +10,11 @@ import os
 import time
 from groq import Groq
 from dotenv import load_dotenv
+import shap
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 
 load_dotenv()
 
@@ -29,6 +34,37 @@ transform = transforms.Compose([
     transforms.Normalize([0.485,0.456,0.406],
                          [0.229,0.224,0.225])
 ])
+
+def generate_shap_plot(model, input_tensor):
+    try:
+        # Sample background - for images, a simple mean or zeros often works as a baseline
+        background = torch.zeros((1, 3, 224, 224)).to(device)
+        
+        # Initialize GradientExplainer
+        explainer = shap.GradientExplainer(model, background)
+        
+        # Compute SHAP values
+        shap_values = explainer.shap_values(input_tensor)
+        
+        # Prepare the image for plot
+        img_numpy = input_tensor.cpu().numpy().transpose(0, 2, 3, 1)
+        
+        # SHAP needs [1, 224, 224, 3]
+        shap_numpy = [s.transpose(0, 2, 3, 1) for s in shap_values]
+
+        plt.figure(figsize=(10, 5))
+        shap.image_plot(shap_numpy, -img_numpy, show=False)
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', transparent=True)
+        buf.seek(0)
+        img_str = base64.b64encode(buf.read()).decode()
+        plt.close('all')
+        
+        return f"data:image/png;base64,{img_str}"
+    except Exception as e:
+        print(f"--- SHAP Error: {str(e)} ---")
+        return None
 
 def get_image_description(image: Image.Image, prediction: str, confidence: float):
     buffered = io.BytesIO()
@@ -76,7 +112,6 @@ def predict_image(image):
 
     image_rgb = image.convert("RGB").copy()
 
-    # print("Image type:", type(image_rgb))
     width, height = image_rgb.size
     total_area = width * height
 
@@ -133,10 +168,13 @@ def predict_image(image):
         round(float(confidence.item()) * 100, 2)
     )
     
+    # Generate SHAP explanation
+    shap_url = generate_shap_plot(model, input_tensor)
+    
     return {
         "prediction": class_names[predicted.item()],
         "confidence": round(float(confidence.item()) * 100, 2),
         "face_crop_url": face_crop_url,
-        "description": description
+        "description": description,
+        "shap_url": shap_url
     }
-

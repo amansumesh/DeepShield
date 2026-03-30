@@ -1,8 +1,8 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from PIL import Image
 import io
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,27 +11,44 @@ from models.predict import predict_image
 
 app = FastAPI()
 
+# ✅ CORS MUST be right after app creation
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://deep-shield-zeta.vercel.app",
-        "http://localhost:5173"
-    ],    
+        "http://localhost:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.options("/{full_path:path}")
+async def preflight_handler():
+    return JSONResponse(content={"message": "OK"})
+
 @app.get("/")
 def home():
     return {"message": "Deepfake Detection API Running"}
 
+@app.get("/predict")
+def predict_get():
+    return {
+        "message": "Use POST /predict with an image file"
+    }
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
 
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
+        result = predict_image(image)
 
-    result = predict_image(image)
+        return result
 
-    return result
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
