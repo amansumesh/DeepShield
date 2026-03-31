@@ -11,27 +11,19 @@ from models.predict import predict_image
 
 app = FastAPI()
 
-# ✅ CORS MUST be right after app creation
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=[
-    #     "https://deep-shield-zeta.vercel.app",
-    #     "http://localhost:5173",
-    # ],
-    allow_origins=["*"],
+    allow_origins=["*"], 
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.options("/{full_path:path}")
-async def preflight_handler():
-    return JSONResponse(content={"message": "OK"})
-
 @app.get("/")
 def home():
     return {"message": "Deepfake Detection API Running"}
 
+#Just to test and fix browser error
 @app.get("/predict")
 def predict_get():
     return {

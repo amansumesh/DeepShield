@@ -24,6 +24,11 @@ device = torch.device("cpu")
 
 model_path = os.path.join(os.path.dirname(__file__), "best_model.pth")
 model = load_model(model_path, device)
+
+# Disable inplace operations for SHAP compatibility
+for m in model.modules():
+    if hasattr(m, 'inplace'):
+        m.inplace = False
 mtcnn = MTCNN(keep_all=False, device=device)
 
 class_names = ["FAKE", "REAL"]

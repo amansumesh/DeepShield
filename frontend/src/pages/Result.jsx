@@ -11,11 +11,11 @@ const Result = ({ result, onReset, previewUrl }) => {
         <div className="w-full max-w-2xl mx-auto glass-morphism rounded-2xl md:rounded-3xl overflow-hidden animate-float">
             <div className="flex flex-col md:flex-row h-full">
                 {/* Image Preview Side */}
-                <div className="w-full md:w-1/2 relative bg-black/40 p-3 md:p-4 aspect-square md:aspect-auto">
+                <div className="w-full md:w-1/2 relative bg-black/40 p-3 md:p-4">
                     <img
                         src={previewUrl}
                         alt="Analyzed"
-                        className="w-full h-full object-contain rounded-xl md:rounded-2xl shadow-2xl border border-white/5"
+                        className="w-full h-auto object-contain rounded-xl md:rounded-2xl shadow-2xl border border-white/5"
                     />
                     <div className="absolute top-6 right-6 md:top-8 md:right-8">
                         <div className={`px-3 py-1 md:px-4 md:py-1.5 rounded-full border backdrop-blur-md text-[10px] md:text-xs font-bold uppercase tracking-widest ${isReal ? "bg-green-500/20 border-green-500/50 text-green-400" : "bg-red-500/20 border-red-500/50 text-red-400"
@@ -23,6 +23,22 @@ const Result = ({ result, onReset, previewUrl }) => {
                             Candidate
                         </div>
                     </div>
+
+                    {result.shap_url && (
+                        <div className="mt-4 md:mt-6 animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700">
+                            <h3 className="text-white/40 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">Model Interpretability (SHAP)</h3>
+                            <div className="relative group/shap">
+                                <img
+                                    src={result.shap_url}
+                                    alt="SHAP Explanation"
+                                    className="w-full h-auto rounded-xl border border-white/10 bg-black/30 shadow-2xl group-hover/shap:border-blue-500/30 transition-all duration-500"
+                                />
+                                <div className="mt-2 text-[10px] md:text-[11px] text-zinc-400 italic leading-snug p-2 rounded-lg bg-white/5 border border-white/5">
+                                    Feature attribution heatmap. Highlights area of interest used by the AI to make this decision.
+                                 </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Analysis Results Side */}
@@ -89,21 +105,6 @@ const Result = ({ result, onReset, previewUrl }) => {
                                 </div>
                             )}
 
-                            {result.shap_url && (
-                                <div className="mt-8 pt-6 border-t border-white/5 animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-700">
-                                    <h3 className="text-white/40 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-3">Model Interpretability (SHAP)</h3>
-                                    <div className="relative group/shap">
-                                         <img 
-                                            src={result.shap_url} 
-                                            alt="SHAP Explanation" 
-                                            className="w-full h-auto rounded-xl border border-white/10 bg-black/20 shadow-inner group-hover/shap:border-blue-500/30 transition-colors"
-                                        />
-                                        <div className="mt-2 text-[10px] text-zinc-500 italic leading-snug">
-                                            Feature attribution heatmap. Highlights area of interest used by the AI to make this decision.
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                         </div>
                     </div>
