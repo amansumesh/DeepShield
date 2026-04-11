@@ -5,7 +5,7 @@ const About = () => {
         <div className="container mx-auto px-4 py-20 max-w-4xl">
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-700">
                 <div className="space-y-4">
-                    <h1 className="text-4xl md:text-6xl font-black text-white">About the <span className="text-gradient">Engine.</span></h1>
+                    <h1 className="text-4xl md:text-6xl font-black text-white">About the <span className="text-gradient">Model.</span></h1>
                     <p className="text-xl text-white/50 font-medium leading-relaxed">
                         DeepShield is a high-precision deepfake detection system leveraging the Residual Network (ResNet-50) architecture to identify subtle artifacts in synthesized media.
                     </p>

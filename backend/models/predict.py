@@ -42,19 +42,15 @@ transform = transforms.Compose([
 
 def generate_shap_plot(model, input_tensor):
     try:
-        # Sample background - for images, a simple mean or zeros often works as a baseline
         background = torch.zeros((1, 3, 224, 224)).to(device)
         
-        # Initialize GradientExplainer
         explainer = shap.GradientExplainer(model, background)
         
         # Compute SHAP values
         shap_values = explainer.shap_values(input_tensor)
         
-        # Prepare the image for plot
         img_numpy = input_tensor.cpu().numpy().transpose(0, 2, 3, 1)
         
-        # SHAP needs [1, 224, 224, 3]
         shap_numpy = [s.transpose(0, 2, 3, 1) for s in shap_values]
 
         plt.figure(figsize=(10, 5))
@@ -142,7 +138,7 @@ def predict_image(image):
         y2 = min(height, box[3] + margin_y)
         new_box = [x1, y1, x2, y2]
         
-        if face_ratio < 0.40: 
+        if face_ratio < 0.65: 
             use_full_image = False
             face_img = image_rgb.crop(new_box)
             
@@ -165,7 +161,13 @@ def predict_image(image):
         probs = F.softmax(outputs, dim=1)
         confidence, predicted = torch.max(probs, 1)
         
-        print(f"--- Prediction: {class_names[predicted.item()]} | Output logits: {outputs[0].tolist()} ---")
+        prediction_label = class_names[predicted.item()]
+        conf_val = confidence.item()
+        
+        # Log distribution
+        prob_dist = {class_names[i]: float(probs[0][i]) for i in range(len(class_names))}
+        print(f"File Analysis Result: {prediction_label} | Confidence: {conf_val:.4f}")
+        print(f"DETAILED PROBS: {prob_dist}")
 
     description = get_image_description(
         image_rgb,

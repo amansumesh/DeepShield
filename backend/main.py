@@ -40,6 +40,7 @@ def predict_get():
 async def predict(file: UploadFile = File(...)):
     try:
         contents = await file.read()
+        print(f"--- LOG: Processing file: {file.filename} ---")
         image = Image.open(io.BytesIO(contents)).convert("RGB")
 
         result = predict_image(image)

@@ -34,8 +34,8 @@ const Result = ({ result, onReset, previewUrl }) => {
                                     className="w-full h-auto rounded-xl border border-white/10 bg-black/30 shadow-2xl group-hover/shap:border-blue-500/30 transition-all duration-500"
                                 />
                                 <div className="mt-2 text-[10px] md:text-[11px] text-zinc-400 italic leading-snug p-2 rounded-lg bg-white/5 border border-white/5">
-                                    Feature attribution heatmap. Highlights area of interest used by the AI to make this decision.
-                                 </div>
+                                    Feature attribution heatmap. Highlights area of interest used by the model to make this decision.
+                                </div>
                             </div>
                         </div>
                     )}
