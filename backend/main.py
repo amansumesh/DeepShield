@@ -14,18 +14,18 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "https://deep-shield-test.vercel.app",
-    "https://deep-shield-zeta.vercel.app"
+    "https://deep-shield-chi.vercel.app"
 ]
 
-# Allow additional origins from environment variables
+# Allow additional origins from environment variables (automatically stripping trailing slashes)
 allowed_origins_env = os.getenv("CORS_ALLOWED_ORIGINS")
 if allowed_origins_env:
-    origins.extend([o.strip() for o in allowed_origins_env.split(",") if o.strip()])
+    origins.extend([o.strip().rstrip('/') for o in allowed_origins_env.split(",") if o.strip()])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://deep-shield-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
