@@ -62,7 +62,7 @@ def generate_shap_plot(model, input_tensor):
         explainer = shap.GradientExplainer(model, background)
         
         # Compute SHAP values
-        shap_values = explainer.shap_values(input_tensor)
+        shap_values = explainer.shap_values(input_tensor, nsamples=20)
         
         img_numpy = input_tensor.cpu().numpy().transpose(0, 2, 3, 1)
         
