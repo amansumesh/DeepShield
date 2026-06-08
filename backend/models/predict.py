@@ -2,19 +2,13 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
-from models.model import load_model
-from facenet_pytorch import MTCNN
 import io
 import base64
 import os
 import time
 from groq import Groq
 from dotenv import load_dotenv
-import shap
-import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 
 load_dotenv()
 
@@ -22,14 +16,30 @@ groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 device = torch.device("cpu") 
 
-model_path = os.path.join(os.path.dirname(__file__), "best_model.pth")
-model = load_model(model_path, device)
+# Lazy model loaders
+_model = None
+_mtcnn = None
 
-# Disable inplace operations for SHAP compatibility
-for m in model.modules():
-    if hasattr(m, 'inplace'):
-        m.inplace = False
-mtcnn = MTCNN(keep_all=False, device=device)
+def get_model():
+    global _model
+    if _model is None:
+        print("--- LOG: Loading ResNet-50 prediction model (lazy load) ---")
+        from models.model import load_model
+        model_path = os.path.join(os.path.dirname(__file__), "best_model.pth")
+        _model = load_model(model_path, device)
+        # Disable inplace operations for SHAP compatibility
+        for m in _model.modules():
+            if hasattr(m, 'inplace'):
+                m.inplace = False
+    return _model
+
+def get_mtcnn():
+    global _mtcnn
+    if _mtcnn is None:
+        print("--- LOG: Loading MTCNN face detector (lazy load) ---")
+        from facenet_pytorch import MTCNN
+        _mtcnn = MTCNN(keep_all=False, device=device)
+    return _mtcnn
 
 class_names = ["FAKE", "REAL"]
 
@@ -42,6 +52,11 @@ transform = transforms.Compose([
 
 def generate_shap_plot(model, input_tensor):
     try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        import shap
+        
         background = torch.zeros((1, 3, 224, 224)).to(device)
         
         explainer = shap.GradientExplainer(model, background)
@@ -116,7 +131,7 @@ def predict_image(image):
     width, height = image_rgb.size
     total_area = width * height
 
-    boxes, _ = mtcnn.detect(image_rgb)
+    boxes, _ = get_mtcnn().detect(image_rgb)
     
     # Cropping Logic
     use_full_image = True
@@ -156,8 +171,9 @@ def predict_image(image):
         input_tensor = transform(image_rgb).unsqueeze(0).to(device)
         face_crop_url = None
 
+    model_instance = get_model()
     with torch.no_grad():
-        outputs = model(input_tensor)
+        outputs = model_instance(input_tensor)
         probs = F.softmax(outputs, dim=1)
         confidence, predicted = torch.max(probs, 1)
         
@@ -176,7 +192,7 @@ def predict_image(image):
     )
     
     # Generate SHAP explanation
-    shap_url = generate_shap_plot(model, input_tensor)
+    shap_url = generate_shap_plot(model_instance, input_tensor)
     
     return {
         "prediction": class_names[predicted.item()],
