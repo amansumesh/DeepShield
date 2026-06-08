@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
 import io
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,6 +17,11 @@ origins = [
     "https://deep-shield-test.vercel.app",
     "https://deep-shield-zeta.vercel.app"
 ]
+
+# Allow additional origins from environment variables
+allowed_origins_env = os.getenv("CORS_ALLOWED_ORIGINS")
+if allowed_origins_env:
+    origins.extend([o.strip() for o in allowed_origins_env.split(",") if o.strip()])
 
 app.add_middleware(
     CORSMiddleware,

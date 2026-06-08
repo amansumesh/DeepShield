@@ -1,13 +1,14 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 Pillow==10.0.1
 facenet-pytorch
-opencv-python
+opencv-python-headless
 python-multipart
 groq
 python-dotenv
 shap
 matplotlib
 numpy<2.0.0
-torch==2.1.2 
-torchvision==0.16.2
+torch
+torchvision
